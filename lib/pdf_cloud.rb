@@ -45,6 +45,8 @@ module PdfCloud
 
     def check_access_token
       if @access_token.expired?
+        # For older versions of oauth2 the refresh_token is not properly carried over after the call to refresh!
+        @access_token = OAuth2::AccessToken.from_hash(@client, {:access_token => @options["access_token"], :refresh_token => @options["refresh_token"]})
         @access_token = @access_token.refresh!
       end
     end
