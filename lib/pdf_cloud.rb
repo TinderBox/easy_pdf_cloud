@@ -27,6 +27,10 @@ module PdfCloud
       #@client.auth_code.authorize_url(:redirect_uri => callback_url, :scope => "epc.api", :state => "EasyPDFCloud")
 
       @access_token = OAuth2::AccessToken.from_hash(@client, {:access_token => access_token, :refresh_token => refresh_token})
+      if access_token.nil? && refresh_token
+        puts "Refreshing EasyPdfCloud Access Token"
+        @access_token = @access_token.refresh!
+      end
       verify_access_token
     end
 
@@ -34,25 +38,19 @@ module PdfCloud
       begin
         workflows()
       rescue => e
-        refresh_token!
+        puts e.message
+        raise "Access denied to pdf-cloud.com API. Verify your access and/or refresh token."
       end
     end
 
-    def refresh_token!
-      if @options["refresh_token"]
-        puts "Access token expired, attempting to refresh."
-        begin
-          @access_token = @access_token.refresh!
-          puts "Refreshed access token successfully."
-          puts @access_token.token
-          puts @access_token.expires_at
-        rescue => e
-          raise "Access token denied and failed to refresh"
-        end
+    def check_access_token
+      if @access_token.expired?
+        @access_token = @access_token.refresh!
       end
     end
 
     def pdf2word(filename, pdf_data, workflow_id=nil)
+      check_access_token
       word_data = ""
       if @options.has_key?("workflow_id") || workflow_id
         id = (workflow_id ? workflow_id : @options["workflow_id"])
@@ -167,7 +165,6 @@ module PdfCloud
     def wait_for_completion
       response = @access_token.post("#{WORKFLOW_URL}/events/#{@event_id}")
       hash = response.parsed
-      puts "Event Progress: #{hash}" if @debug
       return hash["status"] == "completed"
     end
   end
