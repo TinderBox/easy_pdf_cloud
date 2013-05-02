@@ -27,11 +27,6 @@ module PdfCloud
       #@client.auth_code.authorize_url(:redirect_uri => callback_url, :scope => "epc.api", :state => "EasyPDFCloud")
 
       @access_token = OAuth2::AccessToken.from_hash(@client, {:access_token => access_token, :refresh_token => refresh_token})
-      if access_token.nil? && refresh_token
-        puts "Refreshing EasyPdfCloud Access Token"
-        @access_token = @access_token.refresh!
-      end
-      verify_access_token
     end
 
     def verify_access_token
@@ -44,10 +39,12 @@ module PdfCloud
     end
 
     def check_access_token
-      if @access_token.expired?
+      if @access_token.expired? || @access_token.token.empty?
+        puts "Refreshing EasyPdfCloud Access Token"
         # For older versions of oauth2 the refresh_token is not properly carried over after the call to refresh!
         @access_token = OAuth2::AccessToken.from_hash(@client, {:access_token => @options["access_token"], :refresh_token => @options["refresh_token"]})
         @access_token = @access_token.refresh!
+        verify_access_token
       end
     end
 
@@ -64,6 +61,7 @@ module PdfCloud
     end
 
     def workflows
+      check_access_token
       response = @access_token.get(WORKFLOW_URL)
       hash = response.parsed
       hash["workflows"]
