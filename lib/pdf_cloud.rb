@@ -10,7 +10,13 @@ module PdfCloud
 
   class Client
 
-    def initialize(client_id, client_secret, access_token, options={})
+    def initialize(options)
+
+      @options = options
+      client_id = options['client_id']
+      client_secret = options['client_secret']
+      access_token = options['access_token']
+      refresh_token = options['refresh_token']
 
       client_options = {
         :site => SITE,
@@ -20,11 +26,41 @@ module PdfCloud
       @client = OAuth2::Client.new(client_id, client_secret, client_options)
       #@client.auth_code.authorize_url(:redirect_uri => callback_url, :scope => "epc.api", :state => "EasyPDFCloud")
 
-      @access_token = OAuth2::AccessToken.from_hash(@client, {:access_token => access_token})
+      @access_token = OAuth2::AccessToken.from_hash(@client, {:access_token => access_token, :refresh_token => refresh_token})
+      verify_access_token
     end
 
-    def new_access_token(auth_token, callback_url)
-      @access_token = @client.auth_code.get_token(auth_code, :redirect_uri => callback_url)
+    def verify_access_token
+      begin
+        workflows()
+      rescue => e
+        refresh_token!
+      end
+    end
+
+    def refresh_token!
+      if @options["refresh_token"]
+        puts "Access token expired, attempting to refresh."
+        begin
+          @access_token = @access_token.refresh!
+          puts "Refreshed access token successfully."
+          puts @access_token.token
+          puts @access_token.expires_at
+        rescue => e
+          raise "Access token denied and failed to refresh"
+        end
+      end
+    end
+
+    def pdf2word(filename, pdf_data, workflow_id=nil)
+      word_data = ""
+      if @options.has_key?("workflow_id") || workflow_id
+        id = (workflow_id ? workflow_id : @options["workflow_id"])
+        word_data = workflow(id).convert_data(filename, pdf_data, 'pdf', 'doc')
+      else
+        raise "No workflow id was specified"
+      end
+      return word_data
     end
 
     def workflows
@@ -53,8 +89,57 @@ module PdfCloud
       @debug = options[:debug]
     end
 
+    def convert_data(filename, data, source_extension, dest_extension)
+      put_file(filename, data)
+      start_and_wait
+      response = retrieve_file(filename.sub(".#{source_extension}", ".#{dest_extension}"))
+      response.body
+    end
+
     def convert(filename, source_extension, dest_extension)
       upload(filename)
+      start_and_wait
+      download(filename.sub(".#{source_extension}", ".#{dest_extension}"))
+    end
+
+    # Upload Input File
+    def upload(filepath)
+      raise "Invalid file given for upload #{filepath}" if !File.file?(filepath)
+
+      file_data = File.open(filepath, 'rb') {|f| f.read}
+      filename = File.basename(filepath)
+      put_file(filename, file_data)
+    end
+
+    def put_file(filename, file_data)
+      file_url = "#{WORKFLOW_URL}/#{@workflow_id}/files/input/#{filename}?type=file"
+      response = @access_token.put(file_url, {:body => file_data, :headers => {"Content-Type" => "application/pdf"}})
+      return response.is_a?(Hash)
+    end
+
+    # Download Output File
+    def download(filename, destination_path = nil)
+      response = retrieve_file(filename)
+      filepath = (destination_path ? File.join(destination_path, filename) : filename)
+
+      File.open(filepath, "wb") {|f| f.write(response.body)}
+      delete(filename, 'output')
+      true
+    end
+
+    def retrieve_file(filename)
+      file_url = "#{WORKFLOW_URL}/#{@workflow_id}/files/output/#{filename}"
+      response = @access_token.get(file_url)
+    end
+
+    # Delete File from location (input/output)
+    def delete(filename, location)
+      file_url = "#{WORKFLOW_URL}/#{@workflow_id}/files/output/#{filename}"
+      response = @access_token.delete(file_url)
+      return response.parsed.is_a?(Hash)
+    end
+
+    def start_and_wait
       start_job()
       count = 1
       while (wait_for_completion() == false)
@@ -64,38 +149,6 @@ module PdfCloud
         end
         count += 1
       end
-      download(filename.sub(".#{source_extension}", ".#{dest_extension}"))
-    end
-
-    # Upload Input File
-    def upload(filepath)
-      raise "Invalid upload file specified." if (not File.file?(filepath))
-
-      file_data = File.open(filepath, 'rb') {|f| f.read}
-      filename = File.basename(filepath)
-
-      file_url = "#{WORKFLOW_URL}/#{@workflow_id}/files/input/#{filename}?type=file"
-      response = @access_token.put(file_url, {:body => file_data, :headers => {"Content-Type" => "application/pdf"}})
-      return response.is_a?(Hash)
-    end
-
-    # Download Output File
-    def download(filename, destination_path = nil)
-      file_url = "#{WORKFLOW_URL}/#{@workflow_id}/files/output/#{filename}"
-      response = @access_token.get(file_url)
-
-      filepath = (destination_path ? File.join(destination_path, filename) : filename)
-
-      File.open(filepath, "wb") {|f| f.write(response.body)}
-      delete(filename, 'output')
-      true
-    end
-
-    # Delete File from location (input/output)
-    def delete(filename, location)
-      file_url = "#{WORKFLOW_URL}/#{@workflow_id}/files/output/#{filename}"
-      response = @access_token.delete(file_url)
-      return response.parsed.is_a?(Hash)
     end
 
     def start_job
