@@ -90,7 +90,9 @@ module PdfCloud
     def convert_data(filename, data, source_extension, dest_extension)
       put_file(filename, data)
       start_and_wait
-      response = retrieve_file(filename.sub(".#{source_extension}", ".#{dest_extension}"))
+      output_file = filename.sub(".#{source_extension}", ".#{dest_extension}")
+      response = retrieve_file(output_file)
+      delete_output_file(output_file)
       response.body
     end
 
@@ -121,13 +123,21 @@ module PdfCloud
       filepath = (destination_path ? File.join(destination_path, filename) : filename)
 
       File.open(filepath, "wb") {|f| f.write(response.body)}
-      delete(filename, 'output')
+      delete_output_file(filename)
       true
     end
 
     def retrieve_file(filename)
       file_url = "#{WORKFLOW_URL}/#{@workflow_id}/files/output/#{filename}"
       response = @access_token.get(file_url)
+    end
+
+    def delete_input_file(filename)
+      delete(filename, 'input')
+    end
+
+    def delete_output_file(filename)
+      delete(filename, 'output')
     end
 
     # Delete File from location (input/output)
