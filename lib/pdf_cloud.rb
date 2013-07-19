@@ -67,6 +67,18 @@ module PdfCloud
       end
     end
 
+    def convert(filename, input_type, output_type, workflow_id=nil)
+      check_access_token
+      out_filepath = nil
+      wid = workflow_id || @options["workflow_id"]
+      if wid
+        out_filepath = workflow(wid).convert(filename, input_type, output_type)
+      else
+        raise "No workflow id was specified"
+      end
+      return out_filepath
+    end
+
     def pdf2word(filename, pdf_data, workflow_id=nil)
       check_access_token
       word_data = ""
@@ -107,6 +119,19 @@ module PdfCloud
       @jobs_url = "#{client.api_url}/jobs"
       @event_id = nil
       @debug = options[:debug]
+    end
+
+    def convert(filepath, source_extension, dest_extension)
+      raise "Invalid file: #{filepath}" if !File.file?(filepath)
+
+      file_data = File.open(filepath, 'rb') {|f| f.read}
+      filename = File.basename(filepath)
+
+      out_data = convert_data(filename, file_data, source_extension, dest_extension)
+
+      out_filepath = filepath.sub(".#{source_extension}", ".#{dest_extension}")
+      File.open(out_filepath, "wb") {|f| f.write(out_data)}
+      return out_filepath
     end
 
     def convert_data(filename, data, source_extension, dest_extension)
