@@ -24,6 +24,11 @@ Usage:
     pdf_cloud_config = YAML.load_file(File.join(Rails.root, "config", "pdfcloud.yml"))
     pdf_cloud = PdfCloud::Client.new(pdf_cloud_config)
 
+    # Local File System conversion. Uses configured workflow id.  
+    out_filepath = pdf_cloud.convert("/path/to/filename.pdf", 'pdf', 'doc')  
+    # Optionally pass a workflow id  
+    out_filepath = pdf_cloud.convert("/path/to/filename.pdf", 'pdf', 'doc', workflow_id)  
+
     # Raw Data transform
     pdf_data = File.open("somefile.pdf") { |f| f.read }
     # This method uses the configured workflow id.
