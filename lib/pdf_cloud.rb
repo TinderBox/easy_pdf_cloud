@@ -186,11 +186,11 @@ module PdfCloud
     end
 
     def wait_for_completion(job_id)
-      count = 1
+      count = 0
       while (job_event(job_id) == false)
-        if count == 3
+        if count == 6
           delete_job(job_id)
-          raise "Failed to convert after 90 seconds."
+          raise "Failed to convert after 180 seconds."
         end
         count += 1
       end
@@ -201,6 +201,9 @@ module PdfCloud
       response.parsed
     end
 
+    # https://www.pdf-cloud.com/developer/reference#jobs_event
+    # This API waits for an event for up to 30 seconds.
+    # If the job execution does not complete within this duration, returns HTTP status code 202 (Accepted).
     def job_event(job_id)
       response = @access_token.post("#{@jobs_url}/#{job_id}/event")
       hash = response.parsed
