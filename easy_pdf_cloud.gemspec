@@ -1,11 +1,11 @@
 # -*- encoding: utf-8 -*-
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'pdf_cloud/version'
+require 'easy_pdf_cloud/version'
 
 Gem::Specification.new do |gem|
   gem.name          = "pdf_cloud"
-  gem.version       = PdfCloud::VERSION
+  gem.version       = EasyPdfCloud::VERSION
   gem.authors       = ["Joe Heth"]
   gem.email         = ["joeheth@gmail.com"]
   gem.description   = %q{Simplified access to the easypdfcloud.com RESTful API}

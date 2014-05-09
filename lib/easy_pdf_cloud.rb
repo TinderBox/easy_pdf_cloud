@@ -1,7 +1,7 @@
-require "pdf_cloud/version"
+require "easy_pdf_cloud/version"
 require 'oauth2'
 
-module PdfCloud
+module EasyPdfCloud
 
   class Client
 
