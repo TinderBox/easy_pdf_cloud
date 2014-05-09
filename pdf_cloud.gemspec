@@ -8,8 +8,8 @@ Gem::Specification.new do |gem|
   gem.version       = PdfCloud::VERSION
   gem.authors       = ["Joe Heth"]
   gem.email         = ["joeheth@gmail.com"]
-  gem.description   = %q{Simplified access to the pdf-cloud.com RESTful API}
-  gem.summary       = %q{Uses oauth2 gem to access the pdf-cloud API}
+  gem.description   = %q{Simplified access to the easypdfcloud.com RESTful API}
+  gem.summary       = %q{Document conversion using easypdfcloud.com}
   gem.homepage      = ""
 
   gem.files         = `git ls-files`.split($/)
