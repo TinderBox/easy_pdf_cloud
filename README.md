@@ -21,7 +21,7 @@ Configuration:
 Usage:
 
     pdf_cloud_config = YAML.load_file(File.join(Rails.root, "config", "easypdfcloud.yml"))
-    pdf_cloud = PdfCloud::Client.new(pdf_cloud_config)
+    pdf_cloud = EasyPdfCloud::Client.new(pdf_cloud_config)
 
     # Local File System conversion. Uses configured workflow id.  
     out_filepath = pdf_cloud.convert("/path/to/filename.pdf", 'pdf', 'doc')  
@@ -38,7 +38,7 @@ Usage:
 
 Add this line to your application's Gemfile:
 
-    gem 'pdf_cloud'
+    gem 'easy_pdf_cloud'
 
 And then execute:
 
@@ -46,12 +46,12 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install pdf_cloud
+    $ gem install easy_pdf_cloud
 
 ## Usage
 
 ~~~
-client = PdfCloud::Client.new(client_id, client_secret, access_token)
+client = EasyPdfCloud::Client.new(client_id, client_secret, access_token)
 puts client.workflows
 client.workflow(workflow_id).convert(filename, 'pdf', 'doc')
 ~~~
