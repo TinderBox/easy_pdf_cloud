@@ -1,13 +1,13 @@
-# PdfCloud
+# EasyPDFCloud
 
-[pdf-cloud.com](https://www.pdf-cloud.com/) provides a RESTful API for accessing
+[easypdfcloud.com](https://www.easypdfcloud.com/) provides a RESTful API for accessing
 
-This branch supports version 1 of api.pdf-cloud.com.
+This branch supports version 1 of api.easypdfcloud.com.
 
-[Developer API Reference](https://www.pdf-cloud.com/developer/reference)
+[Developer API Reference](https://www.easypdfcloud.com/developer/reference)
 
 This gem assumes you've gone through the OAuth process and have a refresh token.  
-The pdf-cloud.com access token expires about an hour so this gem requires a refresh token to be configured
+The easypdfcloud.com access token expires in an hour so this gem requires a refresh token to be configured
 so it can automatically refresh when needed.
 
 
@@ -21,7 +21,7 @@ Configuration:
 
 Usage:
 
-    pdf_cloud_config = YAML.load_file(File.join(Rails.root, "config", "pdfcloud.yml"))
+    pdf_cloud_config = YAML.load_file(File.join(Rails.root, "config", "easypdfcloud.yml"))
     pdf_cloud = PdfCloud::Client.new(pdf_cloud_config)
 
     # Local File System conversion. Uses configured workflow id.  
