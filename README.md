@@ -10,7 +10,6 @@ This gem assumes you've gone through the OAuth process and have a refresh token.
 The easypdfcloud.com access token expires in an hour so this gem requires a refresh token to be configured
 so it can automatically refresh when needed.
 
-
 Configuration:
 
     client_id: '...'
