@@ -13,9 +13,9 @@ module PdfCloud
     attr_accessor :access_token
     # The OAuth refresh token in use by the client
     attr_accessor :refresh_token
-    # The host to use for OAuth2 authentication. Defaults to www.pdf-cloud.com
+    # The host to use for OAuth2 authentication. Defaults to www.easypdfcloud.com
     attr_accessor :host
-    # The host to use for API requests. Defaults to api.pdf-cloud.com
+    # The host to use for API requests. Defaults to api.easypdfcloud.com
     attr_accessor :api_host
     # The API version the client is using. Defaults to v1
     attr_accessor :version
@@ -53,7 +53,7 @@ module PdfCloud
         workflows()
       rescue => e
         puts e.message
-        raise "Access denied to pdf-cloud.com API. Verify your access and/or refresh token."
+        raise "Access denied to easypdfcloud.com API. Verify your access and/or refresh token."
       end
     end
 
@@ -201,7 +201,7 @@ module PdfCloud
       response.parsed
     end
 
-    # https://www.pdf-cloud.com/developer/reference#jobs_event
+    # https://www.easypdfcloud.com/developer/reference#jobs_event
     # This API waits for an event for up to 30 seconds.
     # If the job execution does not complete within this duration, returns HTTP status code 202 (Accepted).
     def job_event(job_id)
