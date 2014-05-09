@@ -27,8 +27,8 @@ module PdfCloud
     def initialize(options)
 
       @options = options
-      @host = options['host'] || 'https://www.pdf-cloud.com'
-      @api_host = options['api_host'] || "https://api.pdf-cloud.com"
+      @host = options['host'] || 'https://www.easypdfcloud.com'
+      @api_host = options['api_host'] || "https://api.easypdfcloud.com"
       @version = options['version'] || "v1"
       @api_url = "#{@api_host}/#{@version}"
       @workflow_url = "#{@api_url}/workflows"
@@ -43,7 +43,7 @@ module PdfCloud
         :token_url        => '/oauth2/token'
       }
       @client = OAuth2::Client.new(@client_id, @client_secret, client_options)
-      #@client.auth_code.authorize_url(:redirect_uri => callback_url, :scope => "epc.api", :state => "EasyPDFCloud")
+      #@client.auth_code.authorize_url(:redirect_uri => 'http://localhost', :scope => "epc.api", :state => "EasyPDFCloud")
 
       @access_token = OAuth2::AccessToken.from_hash(@client, {:access_token => @access_token, :refresh_token => @refresh_token})
     end
