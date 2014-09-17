@@ -84,7 +84,7 @@ module EasyPdfCloud
       word_data = ""
       if @options.has_key?("workflow_id") || workflow_id
         id = (workflow_id ? workflow_id : @options["workflow_id"])
-        word_data = workflow(id).convert_data(filename, pdf_data, 'pdf', 'doc')
+        word_data = workflow(id).convert_data(filename, pdf_data, 'pdf', 'docx')
       else
         raise "No workflow id was specified"
       end
